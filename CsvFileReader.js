@@ -51,7 +51,7 @@ CsvFileReader.prototype = {
 				csvFileReader.data[csvFileReader.data.length -1] = csvFileReader.data[csvFileReader.data.length -1].concat(parsedLines.shift());
 			}
 			
-			var lastLine = parsedLines[parsedLines.length-1] , lastField;
+			var lastLine = ( parsedLines.length ? parsedLines : csvFileReader.data )[parsedLines.length-1] , lastField;
 			if ( lastLine && (lastField = lastLine[lastLine.length-1]) && lastField[0] == parser_enclose && lastField[lastField.length-1] != parser_enclose )
 			{
 				openField = lastLine.pop();
