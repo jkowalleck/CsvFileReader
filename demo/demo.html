@@ -20,7 +20,7 @@
 			};
 			reader.onloadend = function (loadend) 
 			{
-				var data = this.data , lineCount = data.length;
+				var data = this.data.slice(0, limit) , lineCount = data.length;
 				var linesHTML = "<h2>"+ (loadend.loaded < loadend.total ? "first "+ lineCount : "" ) +" lines from file</h2><table border=1>";
 				for ( var l=0 ; l < lineCount ; ++l )
 				{
