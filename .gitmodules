@@ -1,0 +1,6 @@
+[submodule "LinewiseFileReader"]
+	path = LinewiseFileReader
+	url = https://bitbucket.org/jkowalleck/linewisefilereader.git
+[submodule "CsvParser"]
+	path = CsvParser
+	url = https://bitbucket.org/jkowalleck/csvparser.git
