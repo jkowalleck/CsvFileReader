@@ -43,23 +43,7 @@ CsvFileReader.prototype = {
 			  , data = parser.data;
 			parser.reset();
 
-			if ( lastTrailingOpenLine !== false )
-			{
-				var dataFirstLine = data.shift();
-				if ( dataFirstLine !== undefined )
-				{
-					data.unshift( lastTrailingOpenLine.concat(dataFirstLine) );
-				}
-				else if ( trailingOpenLine !== false  )
-				{
-					trailingOpenLine = lastTrailingOpenLine.concat(trailingOpenLine);
-				}
-				else
-				{
-					trailingOpenLine = lastTrailingOpenLine;
-				}
-			}
-
+			trailingOpenLine = csvFileReader.processOpenLine(lastTrailingOpenLine, data, trailingOpenLine);
 			csvFileReader.data = csvFileReader.data.concat(data);
 
 			var notDone = ( load.loaded < load.total );
@@ -82,6 +66,28 @@ CsvFileReader.prototype = {
 		};
 
 		reader.read(file);
+	} ,
+
+	processOpenLine : function (openLine, data, trailingOpenLine)
+	{
+		if ( openLine !== false )
+		{
+			var dataFirstLine = data[0];
+			if ( dataFirstLine !== undefined )
+			{
+				data[0] = openLine.concat(dataFirstLine);
+			}
+			else if ( trailingOpenLine !== false  )
+			{
+				trailingOpenLine = openLine.concat(trailingOpenLine);
+			}
+			else
+			{
+				trailingOpenLine = openLine;
+			}
+		}
+
+		return trailingOpenLine;
 	} ,
 
 	onerror : null ,
