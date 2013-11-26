@@ -56,8 +56,7 @@ CsvFileReader.prototype = {
 				csvFileReader.data.push(trailingOpenLine);
 			}
 
-			var notAbort = ( csvFileReader.onload && csvFileReader.onload(load) );
-			return notAbort;
+			return ( !csvFileReader.onload || csvFileReader.onload(load) );
 		};
 
 		reader.onloadend = function (loadend)
