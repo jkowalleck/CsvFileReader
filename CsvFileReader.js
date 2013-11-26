@@ -13,70 +13,73 @@ CsvFileReader.prototype = {
 	
 	reset : function () 
 	{
+		this.error = null;
 		this.data = [];
 	} ,
 	
-	read : function (file)
-	{	
-		var reader = new LinewiseFileReader();
-		var parser = new CsvParser(this.delimiter, this.enclose, this.escape);
-	
+	read : function ( file ) 
+	{
 		var csvFileReader = this;
 		csvFileReader.reset();
 		
-		var parser_enclose = parser.enclose;
+		var reader = new LinewiseFileReader();
+		var parser = new CsvParser(this.delimiter, this.enclose, this.escape);
 		
-		var openField = false;
-		reader.onload = function (load) 
+		// @XXX maybe make reader.bufferSize smaller ...  
+		
+		reader.onerror = function (error) 
+		{
+			csvFileReader.error = this.error;
+			csvFileReader.onerror && csvFileReader.onerror(error);
+		};
+		
+		var lastTrailingOpenLine=false;
+		reader.onload = function (load)
 		{
 			var lines = this.lines;
-			if ( lines.length == 0 ) 
-			{
-				// return true;
-			}
-			
 			this.reset();
 			
-			if ( openField ) 
-			{
-				lines[0] = openField + lines[0];
-			}
-						
-			parser.parseLines(lines);
-			var parsedLines = parser.data;
+			var trailingOpenLine = parser.parseLines(lines)
+			  , data = parser.data;
+			parser.reset();
 			
-			if ( openField ) 
+			if ( lastTrailingOpenLine !== false ) 
 			{
-				// this looks so disgusting 
-				csvFileReader.data[csvFileReader.data.length -1] = csvFileReader.data[csvFileReader.data.length -1].concat(parsedLines.shift());
-			}
-			
-			var lastLine = ( parsedLines.length ? parsedLines : csvFileReader.data )[parsedLines.length-1] , lastField;
-			if ( lastLine && (lastField = lastLine[lastLine.length-1]) && lastField[0] == parser_enclose && lastField[lastField.length-1] != parser_enclose )
-			{
-				openField = lastLine.pop();
-			}			
-			else
-			{
-				openField = false;
+				var dataFirstLine = data.shift();
+				if ( dataFirstLine )
+				{
+					csvFileReader.data.push( lastTrailingOpenLine.concat(dataFirstLine) );
+				}
+				else if ( trailingOpenLine !== false  ) 
+				{
+					trailingOpenLine = lastTrailingOpenLine.concat(trailingOpenLine);
+				}
+				else
+				{
+					trailingOpenLine = lastTrailingOpenLine;
+				}
 			}
 			
-			csvFileReader.data = csvFileReader.data.concat(parsedLines);
+			csvFileReader.data = csvFileReader.data.concat(data);
 			
-			if ( csvFileReader.onload )
-			{
-				return csvFileReader.onload(load);
-			}
-			return true;
-		}
+			var notAbort = ( csvFileReader.onload && csvFileReader.onload(load) );
+			lastTrailingOpenLine = ( notAbort ? trailingOpenLine : false );
+			return notAbort;
+		};
 		
-		reader.onloadend = function (loadend) { 
+		reader.onloadend = function (loadend)
+		{
+			if ( lastTrailingOpenLine ) 
+			{
+				csvFileReader.data.push(lastTrailingOpenLine);
+			}
 			csvFileReader.onloadend && csvFileReader.onloadend(loadend);
-		}
+		};
 		
 		reader.read(file);
 	} ,
 	
+	onerror : null ,
 	onload : null , // return false to abort loading process
 	onloadend : null
 };

@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<script type="text/javascript" src="../LinewiseFileReader/LinewiseFileReader.js"></script>
-	<script type="text/javascript" src="../CsvParser/CsvParser.js"></script>
-	<script type="text/javascript" src="../CsvFileReader.js"></script>
+	<script type="text/javascript" src="../../LinewiseFileReader/LinewiseFileReader.js"></script>
+	<script type="text/javascript" src="../../CsvParser/CsvParser.js"></script>
+	<script type="text/javascript" src="../../CsvFileReader.js"></script>
 	<script type="text/javascript">
 	//<![CDATA[
 		function read50lines (file) 
@@ -11,15 +11,18 @@
 		
 			var lineOut = document.getElementById("lines");
 			
-			var limit = 50;
+			var limit = 10;
 			
-			var reader = new CsvFileReader(";");
+			var reader = new CsvFileReader(",");
 			reader.onload = function (load) 
 			{
+				console.info(load);
 				return this.data.length < limit;
 			};
 			reader.onloadend = function (loadend) 
 			{
+				console.info(loadend);
+				
 				var data = this.data.slice(0, limit) , lineCount = data.length;
 				var linesHTML = "<h2>"+ (loadend.loaded < loadend.total ? "first "+ lineCount : "" ) +" lines from file</h2><table border=1>";
 				for ( var l=0 ; l < lineCount ; ++l )
