@@ -16,12 +16,12 @@
 			var reader = new CsvFileReader(",");
 			reader.onload = function (load) 
 			{
-				console.info(load);
+				console.info("load",load);
 				return this.data.length < limit;
 			};
 			reader.onloadend = function (loadend) 
 			{
-				console.info(loadend);
+				console.info("end",loadend);
 				
 				var data = this.data.slice(0, limit) , lineCount = data.length;
 				var linesHTML = "<h2>"+ (loadend.loaded < loadend.total ? "first "+ lineCount : "" ) +" lines from file</h2><table border=1>";

@@ -1,41 +1,57 @@
+/**
+ * CSV File Reader
+ *
+ * @author jan Kowalleck <jan.kowalleck@googlemail.com>
+ */
 
-CsvFileReader = function (delimiter, enclose, escape)
-{
-	this.delimiter = delimiter;
-	this.enclose = enclose;
-	this.escape = escape;
-
+CsvFileReader = function (csvProperties, fileBufferSize) {
 	this.reset();
+
+	csvProperties && this.setCsvProperties(csvProperties);
+	fileBufferSize && this.setFileBufferSize(fileBufferSize);
 };
 
 CsvFileReader.prototype = {
 	constructor : CsvFileReader ,
 
-	reset : function ()
-	{
+	reset : function () {
 		this.error = null;
 		this.data = [];
 	} ,
 
-	read : function ( file )
-	{
+	csvProperties : (function(){ var defaults = {}; CsvParser.prototype.setCsvProperties.call(defaults); return defaults; })() ,
+	setCsvProperties : function (csvProperties) {
+		csvProperties = csvProperties || {};
+		var csvProperties_tmpHolder = {};
+		CsvParser.prototyp.setCsvProperties.call(csvProperties_tmpHolder, csvProperties.delimiter, csvProperties.enclose, csvProperties.escape);
+		this.csvProperties = csvProperties_tmpHolder;
+	} ,
+
+	fileBufferSize : LinewiseFileReader.prototype.bufferSize ,
+	setFileBufferSize : function (fileBufferSize) {
+		var fileBufferSize_tmpHolder = {};
+		LinewiseFileReader.prototype.setBufferSize.call(fileBufferSize_tmpHolder, fileBufferSize);
+		this.fileBufferSize = fileBufferSize_tmpHolder.bufferSize;
+	} ,
+
+	read : function ( file ) {
 		var csvFileReader = this;
 		csvFileReader.reset();
 
-		var reader = new LinewiseFileReader();
-		var parser = new CsvParser(this.delimiter, this.enclose, this.escape);
+		var reader = new LinewiseFileReader(this.fileBufferSize);
+
+		var csvProperties = this.csvProperties;
+		var parser = new CsvParser(csvProperties.delimiter, csvProperties.enclose, csvProperties.escape);
 
 		// @XXX maybe make reader.bufferSize smaller ...
 
-		reader.onerror = function (error)
-		{
+		reader.onerror = function (error) {
 			csvFileReader.error = this.error;
 			csvFileReader.onerror && csvFileReader.onerror(error);
 		};
 
 		var lastTrailingOpenLine=false;
-		reader.onload = function (load)
-		{
+		reader.onload = function (load) {
 			var lines = this.lines;
 			this.reset();
 
@@ -59,16 +75,14 @@ CsvFileReader.prototype = {
 			return ( !csvFileReader.onload || csvFileReader.onload(load) );
 		};
 
-		reader.onloadend = function (loadend)
-		{
+		reader.onloadend = function (loadend) {
 			csvFileReader.onloadend && csvFileReader.onloadend(loadend);
 		};
 
 		reader.read(file);
 	} ,
 
-	processOpenLine : function (openLine, data, trailingOpenLine)
-	{
+	processOpenLine : function (openLine, data, trailingOpenLine) {
 		if ( openLine !== false )
 		{
 			var dataFirstLine = data[0];
