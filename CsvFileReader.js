@@ -23,7 +23,7 @@ CsvFileReader.prototype = {
 	setCsvProperties : function (csvProperties) {
 		csvProperties = csvProperties || {};
 		var csvProperties_tmpHolder = {};
-		CsvParser.prototyp.setCsvProperties.call(csvProperties_tmpHolder, csvProperties.delimiter, csvProperties.enclose, csvProperties.escape);
+		CsvParser.prototype.setCsvProperties.call(csvProperties_tmpHolder, csvProperties.delimiter, csvProperties.enclose, csvProperties.escape);
 		this.csvProperties = csvProperties_tmpHolder;
 	} ,
 
